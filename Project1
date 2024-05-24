@@ -1,0 +1,59 @@
+punctuation_chars = ["'", '"', ",", ".", "!", ":", ";", '#', '@']
+
+def strip_punctuation(x):
+    for char in punctuation_chars:
+        x = x.replace(char,'')
+    return x
+
+def get_pos(string):
+    num = 0
+    list_words = strip_punctuation(string)
+    list_words_after = list_words.split()
+    for words in list_words_after:
+        if words.lower() in positive_words:
+            num = num + 1
+    return num
+
+def get_neg(string1):
+    num = 0
+    list_words = strip_punctuation(string1)
+    list_words_after  =list_words.split()
+    for words in list_words_after:
+        if words.lower() in negative_words:
+            num +=1
+    return num
+
+positive_words = []
+with open("positive_words.txt") as pos_f:
+    for lin in pos_f:
+        if lin[0] != ';' and lin[0] != '\n':
+            positive_words.append(lin.strip())
+
+
+negative_words = []
+try:
+    with open("negative_words.txt", encoding='utf-8') as neg_f:
+        for lin in neg_f:
+            if lin[0] != ';' and lin[0] != '\n':
+                negative_words.append(lin.strip())
+except UnicodeDecodeError:
+    with open("negative_words.txt", encoding='ISO-8859-1') as neg_f:
+        for lin in neg_f:
+            if lin[0] != ';' and lin[0] != '\n':
+                negative_words.append(lin.strip())
+
+project = open("project_twitter_data.csv","r")
+project_after = open("resulting_data.csv","w")
+project_after.write('Number of Retweets, Number of Replies, Positive Score, Negative Score, Net Score') 
+project_after.write("\n")
+
+read_project = project.readlines()
+for num_row in read_project[1:]:
+    phong = num_row.split()
+    han = phong[-1].split(',')
+    row = '{},{},{},{},{}'.format(han[-2],han[-1],get_pos(num_row),get_neg(num_row),((int(get_pos(num_row)))-int((get_neg(num_row)))))
+    project_after.write(row)
+    project_after.write("\n")
+    
+project_after.close
+project.close
